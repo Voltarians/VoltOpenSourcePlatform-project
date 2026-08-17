@@ -14,6 +14,7 @@ from typing import Sequence
 
 from tools import atlas as atlas_store
 from tools import log_analysis
+from tools import j2534_inventory
 from tools import research
 from tools.parsers import csv_to_dbc
 from tools.parsers import decode_log_from_csv as decoder
@@ -235,6 +236,25 @@ def cmd_compare_logs(args: argparse.Namespace) -> int:
 
 
 
+def cmd_j2534_inventory(args):
+    if args.dll:
+        if not args.confirm_read_only:
+            raise ValueError("Live scanning requires --confirm-read-only.")
+        backend = j2534_inventory.WindowsJ2534Backend(
+            args.dll, timeout_ms=args.timeout_ms
+        )
+    else:
+        backend = j2534_inventory.ReplayBackend(args.replay)
+    inventory = j2534_inventory.build_inventory(backend, bitrate=args.bitrate)
+    text = (
+        json.dumps(inventory, indent=2) + "\n"
+        if args.json
+        else j2534_inventory.inventory_markdown(inventory)
+    )
+    _write_or_print(text, args.output)
+    return 0
+
+
 def cmd_atlas_validate(args):
     errors = atlas_store.validate()
     if errors:
@@ -284,7 +304,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="voltec",
         description="Offline CAN research toolkit for Chevrolet Volt and Cadillac ELR.",
     )
-    parser.add_argument("--version", action="version", version="voltec 0.5.0")
+    parser.add_argument("--version", action="version", version="voltec 0.6.0")
     commands = parser.add_subparsers(dest="command", required=True)
 
     frame_parser = commands.add_parser("decode-frame", help="Decode one CAN frame.")
@@ -352,6 +372,25 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--dbc", type=Path, default=DEFAULT_DBC)
     validate.set_defaults(handler=cmd_validate_dbc)
 
+
+    j2534_parser = commands.add_parser(
+        "j2534", help="Use a Windows SAE J2534 adapter."
+    )
+    j2534_commands = j2534_parser.add_subparsers(
+        dest="j2534_command", required=True
+    )
+    inventory = j2534_commands.add_parser(
+        "inventory", help="Discover emissions-related responders read-only."
+    )
+    source = inventory.add_mutually_exclusive_group(required=True)
+    source.add_argument("--dll", type=Path)
+    source.add_argument("--replay", type=Path)
+    inventory.add_argument("--bitrate", type=int, default=500000)
+    inventory.add_argument("--timeout-ms", type=int, default=750)
+    inventory.add_argument("--confirm-read-only", action="store_true")
+    inventory.add_argument("--json", action="store_true")
+    inventory.add_argument("--output", type=Path)
+    inventory.set_defaults(handler=cmd_j2534_inventory)
 
     atlas_parser = commands.add_parser("atlas", help="Query Voltec Atlas.")
     atlas_commands = atlas_parser.add_subparsers(dest="atlas_command", required=True)
