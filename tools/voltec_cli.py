@@ -234,7 +234,9 @@ def cmd_atlas_list(args):
         print(json.dumps(rows, indent=2))
     else:
         for row in rows:
-            print(f"{row.get('can_id', row['id']):>8}  {row.get('name', row.get('model', row['id']))}")
+            primary = row.get("can_id") or row.get("id", "")
+            label = row.get("name") or row.get("model") or row.get("id", "")
+            print(f"{primary:>8}  {label}")
         print(f"Records: {len(rows)}")
     return 0
 
