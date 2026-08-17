@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "volt-open-source-platform"
-version = "0.4.0"
+version = "0.5.0"
 description = "Open CAN and diagnostic research tooling for the Chevrolet Volt and Cadillac ELR"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -14,6 +14,7 @@ from typing import Sequence
 
 from tools import atlas as atlas_store
 from tools import log_analysis
+from tools import research
 from tools.parsers import csv_to_dbc
 from tools.parsers import decode_log_from_csv as decoder
 
@@ -200,6 +201,24 @@ def cmd_unknown_ids(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_research_log(args: argparse.Namespace) -> int:
+    capture_format, frames = log_analysis.read_capture(args.input)
+    report = research.build_report(
+        frames,
+        capture_format,
+        _known_ids(args.signals),
+        research.capture_sha256(args.input),
+        top=args.top,
+    )
+    text = (
+        json.dumps(report, indent=2) + "\n"
+        if args.json
+        else research.report_markdown(report)
+    )
+    _write_or_print(text, args.output)
+    return 0
+
+
 def cmd_compare_logs(args: argparse.Namespace) -> int:
     known = _known_ids(args.signals)
     base_format, base_frames = log_analysis.read_capture(args.baseline)
@@ -265,7 +284,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="voltec",
         description="Offline CAN research toolkit for Chevrolet Volt and Cadillac ELR.",
     )
-    parser.add_argument("--version", action="version", version="voltec 0.4.0")
+    parser.add_argument("--version", action="version", version="voltec 0.5.0")
     commands = parser.add_subparsers(dest="command", required=True)
 
     frame_parser = commands.add_parser("decode-frame", help="Decode one CAN frame.")
@@ -298,6 +317,16 @@ def build_parser() -> argparse.ArgumentParser:
     unknown.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
     unknown.add_argument("--json", action="store_true")
     unknown.set_defaults(handler=cmd_unknown_ids)
+
+    research_parser = commands.add_parser(
+        "research-log", help="Rank unknown IDs from a passive capture."
+    )
+    research_parser.add_argument("input", type=Path)
+    research_parser.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
+    research_parser.add_argument("--top", type=int, default=20)
+    research_parser.add_argument("--json", action="store_true")
+    research_parser.add_argument("--output", type=Path)
+    research_parser.set_defaults(handler=cmd_research_log)
 
     compare = commands.add_parser("compare-logs", help="Compare two CAN captures.")
     compare.add_argument("baseline", type=Path)
