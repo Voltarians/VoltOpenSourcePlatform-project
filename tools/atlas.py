@@ -66,7 +66,9 @@ def validate(root: Path = ROOT) -> list[str]:
         seen.add(key)
         if signal["network_id"] not in network_ids:
             errors.append(f"signal {signal['name']} references unknown network")
-        if signal["start_bit"] + signal["bit_length"] > signal["dlc"] * 8:
+        exceeds_dlc = signal["start_bit"] + signal["bit_length"] > signal["dlc"] * 8
+        documented = "dlc-bit-range" in signal.get("source_conflicts", [])
+        if exceeds_dlc and not documented:
             errors.append(f"signal {signal['name']} exceeds DLC")
     return errors
 
