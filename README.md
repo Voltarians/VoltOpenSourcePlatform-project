@@ -35,6 +35,7 @@ voltec generate-dbc    Generate a DBC from signal definitions
 voltec list-signals    Inspect known signals
 voltec validate-dbc    Verify reproducible DBC generation
 voltec atlas ...       Validate, query, and export Voltec Atlas
+voltec j2534 inventory Discover OBD information responders through J2534
 ```
 
 Supported imports include SocketCAN/candump, plain `ID#DATA`, headerless byte CSV, general header-based CSV, SavvyCAN-style CSV, and common CANalyst text records.
@@ -71,6 +72,24 @@ voltec atlas export-json atlas.json
 voltec atlas export-dbc atlas.dbc
 ```
 
+## Read-only J2534 inventory
+
+On a Windows computer with the adapter manufacturer's J2534 driver installed, point the scanner at that driver's DLL:
+
+```powershell
+voltec j2534 inventory --dll "C:\Path\To\vendor-j2534.dll" --confirm-read-only --output inventory.md
+```
+
+The live command uses ISO 15765 at 500 kbit/s and sends only functional OBD service `09 00` (read supported vehicle-information PIDs). It records response IDs from `0x7E8` through `0x7EF`, but leaves every Atlas module assignment blank until independent evidence confirms it.
+
+The scanner does not request a VIN, calibration data, DTCs, diagnostic sessions, security access, actuator control, downloads, transfers, or programming. This first release inventories emissions-related responders only; it is not yet a complete GM module census.
+
+For hardware-free validation:
+
+```bash
+voltec j2534 inventory --replay tests/fixtures/j2534_inventory.json --json
+```
+
 ## Repository layout
 
 ```text
@@ -101,8 +120,9 @@ Current public tools are offline and read-only. Vehicle transmit, security acces
 2. Unified Voltec CAN toolkit — active
 3. Machine-readable Voltec Atlas — version 0.1 operational
 4. Passive capture research and evidence ranking — operational
-5. Read-only J2534/VCX module inventory scanner
-6. Generated decoder definitions for Voltarian
+5. Read-only J2534/VCX emissions-responder inventory — version 0.1 operational
+6. Evidence-backed GM module census expansion
+7. Generated decoder definitions for Voltarian
 
 ## License
 
