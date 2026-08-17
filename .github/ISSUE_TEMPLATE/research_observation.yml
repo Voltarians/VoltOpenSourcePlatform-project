@@ -1,0 +1,40 @@
+name: Research observation
+description: Propose or document a CAN signal, DID, module, or network observation
+title: "[Research] "
+labels: ["research"]
+body:
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: Confidence
+      options: [unverified, observed, correlated, confirmed]
+    validations:
+      required: true
+  - type: input
+    id: vehicle
+    attributes:
+      label: Vehicle applicability
+      placeholder: "Example: 2011–2015 Chevrolet Volt"
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: Observation
+      description: Include network, identifiers, bytes, scaling, units, and supporting evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation method
+      description: Describe the capture equipment, fixture or vehicle, conditions, and date.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety and rights
+      options:
+        - label: The submitted material is sanitized and I have the right to redistribute it.
+          required: true
