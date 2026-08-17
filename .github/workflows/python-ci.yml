@@ -41,6 +41,8 @@ jobs:
           voltec validate-dbc
           voltec inspect-log tests/fixtures/sample_candump.log
           voltec unknown-ids tests/fixtures/sample_candump.log
+          voltec research-log tests/fixtures/sample_candump.log --output /tmp/research.md
+          voltec research-log tests/fixtures/sample_candump.log --json --output /tmp/research.json
           voltec normalize-log tests/fixtures/sample_candump.log /tmp/normalized.csv
           voltec compare-logs tests/fixtures/sample_candump.log tests/fixtures/sample_candump.log
           voltec atlas validate
