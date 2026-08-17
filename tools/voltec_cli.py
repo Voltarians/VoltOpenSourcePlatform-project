@@ -12,6 +12,7 @@ import tempfile
 from pathlib import Path
 from typing import Sequence
 
+from tools import atlas as atlas_store
 from tools import log_analysis
 from tools.parsers import csv_to_dbc
 from tools.parsers import decode_log_from_csv as decoder
@@ -214,12 +215,57 @@ def cmd_compare_logs(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def cmd_atlas_validate(args):
+    errors = atlas_store.validate()
+    if errors:
+        for error in errors:
+            print(error, file=sys.stderr)
+        return 1
+    print("Voltec Atlas validation passed.")
+    return 0
+
+def cmd_atlas_list(args):
+    rows = atlas_store.signals() if args.atlas_kind == "signals" else atlas_store.load_kind(args.atlas_kind)
+    if args.atlas_kind == "signals" and args.can_id:
+        wanted = decoder.parse_can_id(args.can_id)
+        rows = [row for row in rows if int(row["can_id"], 16) == wanted]
+    if args.json:
+        print(json.dumps(rows, indent=2))
+    else:
+        for row in rows:
+            primary = row.get("can_id") or row.get("id", "")
+            label = row.get("name") or row.get("model") or row.get("id", "")
+            print(f"{primary:>8}  {label}")
+        print(f"Records: {len(rows)}")
+    return 0
+
+def cmd_atlas_lookup(args):
+    print(json.dumps(atlas_store.lookup(args.query), indent=2))
+    return 0
+
+def cmd_atlas_export_json(args):
+    atlas_store.export_json(args.output)
+    print(f"Atlas JSON written: {args.output}")
+    return 0
+
+def cmd_atlas_export_csv(args):
+    atlas_store.export_signal_csv(args.output)
+    print(f"Atlas CSV written: {args.output}")
+    return 0
+
+def cmd_atlas_export_dbc(args):
+    with tempfile.TemporaryDirectory() as directory:
+        signal_csv = Path(directory) / "signals.csv"
+        atlas_store.export_signal_csv(signal_csv)
+        return _run_legacy(csv_to_dbc.main, [str(signal_csv), str(args.output)])
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="voltec",
         description="Offline CAN research toolkit for Chevrolet Volt and Cadillac ELR.",
     )
-    parser.add_argument("--version", action="version", version="voltec 0.3.0")
+    parser.add_argument("--version", action="version", version="voltec 0.4.0")
     commands = parser.add_subparsers(dest="command", required=True)
 
     frame_parser = commands.add_parser("decode-frame", help="Decode one CAN frame.")
@@ -276,6 +322,25 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
     validate.add_argument("--dbc", type=Path, default=DEFAULT_DBC)
     validate.set_defaults(handler=cmd_validate_dbc)
+
+
+    atlas_parser = commands.add_parser("atlas", help="Query Voltec Atlas.")
+    atlas_commands = atlas_parser.add_subparsers(dest="atlas_command", required=True)
+    atlas_validate = atlas_commands.add_parser("validate")
+    atlas_validate.set_defaults(handler=cmd_atlas_validate)
+    for atlas_kind in ("vehicles", "networks", "modules", "signals"):
+        item = atlas_commands.add_parser(atlas_kind)
+        item.add_argument("--json", action="store_true")
+        if atlas_kind == "signals":
+            item.add_argument("--can-id")
+        item.set_defaults(handler=cmd_atlas_list, atlas_kind=atlas_kind)
+    lookup = atlas_commands.add_parser("lookup")
+    lookup.add_argument("query")
+    lookup.set_defaults(handler=cmd_atlas_lookup)
+    for name, handler in (("export-json", cmd_atlas_export_json), ("export-csv", cmd_atlas_export_csv), ("export-dbc", cmd_atlas_export_dbc)):
+        item = atlas_commands.add_parser(name)
+        item.add_argument("output", type=Path)
+        item.set_defaults(handler=handler)
 
     return parser
 

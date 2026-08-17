@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "id": "hpcm2",
+  "name": "Hybrid Powertrain Control Module 2",
+  "role": "Energy coordination",
+  "network_ids": [
+    "high-speed-gmlan"
+  ],
+  "vehicle_ids": [
+    "chevrolet-volt-gen1",
+    "cadillac-elr"
+  ],
+  "diagnostic_address": null,
+  "safety_class": "read-only",
+  "evidence": {
+    "source": "Observed Voltec inventory; address unverified",
+    "confidence": "observed"
+  }
+}

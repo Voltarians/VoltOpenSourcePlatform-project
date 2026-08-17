@@ -1,0 +1,50 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "role",
+    "network_ids",
+    "vehicle_ids",
+    "diagnostic_address",
+    "safety_class",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "network_ids": {
+      "type": "array"
+    },
+    "vehicle_ids": {
+      "type": "array"
+    },
+    "diagnostic_address": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "safety_class": {
+      "enum": [
+        "read-only",
+        "control",
+        "programming"
+      ]
+    },
+    "evidence": {
+      "type": "object"
+    }
+  }
+}

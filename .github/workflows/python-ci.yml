@@ -43,3 +43,11 @@ jobs:
           voltec unknown-ids tests/fixtures/sample_candump.log
           voltec normalize-log tests/fixtures/sample_candump.log /tmp/normalized.csv
           voltec compare-logs tests/fixtures/sample_candump.log tests/fixtures/sample_candump.log
+          voltec atlas validate
+          voltec atlas vehicles
+          voltec atlas modules
+          voltec atlas signals --can-id 0x4D1
+          voltec atlas lookup HPCM2
+          voltec atlas export-json /tmp/atlas.json
+          voltec atlas export-csv /tmp/atlas.csv
+          voltec atlas export-dbc /tmp/atlas.dbc

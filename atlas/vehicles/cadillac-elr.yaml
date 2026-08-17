@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "id": "cadillac-elr",
+  "make": "Cadillac",
+  "model": "ELR",
+  "generation": "Gen 1",
+  "model_years": {
+    "start": 2014,
+    "end": 2016
+  }
+}

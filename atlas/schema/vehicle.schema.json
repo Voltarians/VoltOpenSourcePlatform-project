@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "make",
+    "model",
+    "generation",
+    "model_years"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "generation": {
+      "type": "string"
+    },
+    "model_years": {
+      "type": "object",
+      "required": [
+        "start",
+        "end"
+      ]
+    }
+  }
+}

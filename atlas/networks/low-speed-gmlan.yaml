@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "id": "low-speed-gmlan",
+  "name": "Low-Speed GMLAN",
+  "physical_layer": "SAE J2411 single-wire CAN",
+  "nominal_bitrate": 33333,
+  "addressing": "11-bit",
+  "evidence": {
+    "source": "GM architecture reference",
+    "confidence": "published-reference"
+  }
+}

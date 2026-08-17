@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "id": "tcm",
+  "name": "Transmission Control Module",
+  "role": "Electric drive control",
+  "network_ids": [
+    "high-speed-gmlan"
+  ],
+  "vehicle_ids": [
+    "chevrolet-volt-gen1",
+    "cadillac-elr"
+  ],
+  "diagnostic_address": null,
+  "safety_class": "read-only",
+  "evidence": {
+    "source": "Observed Voltec inventory; address unverified",
+    "confidence": "observed"
+  }
+}
