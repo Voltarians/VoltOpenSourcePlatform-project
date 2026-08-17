@@ -45,6 +45,8 @@ jobs:
           voltec research-log tests/fixtures/sample_candump.log --json --output /tmp/research.json
           voltec normalize-log tests/fixtures/sample_candump.log /tmp/normalized.csv
           voltec compare-logs tests/fixtures/sample_candump.log tests/fixtures/sample_candump.log
+          voltec j2534 inventory --replay tests/fixtures/j2534_inventory.json --output /tmp/j2534.md
+          voltec j2534 inventory --replay tests/fixtures/j2534_inventory.json --json --output /tmp/j2534.json
           voltec atlas validate
           voltec atlas vehicles
           voltec atlas modules
