@@ -170,6 +170,8 @@ class ReplayBackend:
     def discover(self, bitrate: int) -> list[Response]:
         del bitrate
         rows = json.loads(self.path.read_text(encoding="utf-8"))
+        if not isinstance(rows, list):
+            raise TypeError("J2534 replay must be a JSON list of responses.")
         return [
             Response(
                 int(row["response_id"], 16),
