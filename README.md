@@ -12,14 +12,36 @@ The platform preserves GM's original vehicle systems while providing documented,
 | [Voltarian](https://github.com/Voltarians/Voltarian) | Android and iOS diagnostic application |
 | [Voltarian ELM Lab](https://github.com/Voltarians/Voltarian-ELM-Lab) | Adapter emulator and protocol validation bench |
 
-## Current capabilities
+## Voltec CAN Toolkit
 
-- Racelogic-derived public Gen-1 Volt signal definitions
-- Public DBC generated from the source signal CSV
-- Single-frame CAN decoder
-- CAN log decoder for candump, ID#DATA, and CSV input
-- Racelogic REF extraction utility
-- Automated parser and DBC validation
+Install from a repository checkout using Python 3.10 or newer:
+
+```bash
+python -m pip install -e .
+voltec --help
+```
+
+Available commands:
+
+```text
+voltec decode-frame   Decode one CAN frame
+voltec decode-log     Decode a candump, ID#DATA, or CSV capture
+voltec generate-dbc   Generate a DBC from signal definitions
+voltec list-signals   Inspect known signals
+voltec validate-dbc   Verify reproducible DBC generation
+```
+
+Examples:
+
+```bash
+voltec list-signals --can-id 0x52A
+voltec decode-frame 0x4D1 "00 00 00 00 00 00 00 00" --json
+voltec decode-log data/raw/candump.log data/processed/decoded.csv
+voltec generate-dbc /tmp/volt_public.dbc
+voltec validate-dbc
+```
+
+The original standalone parser scripts remain available under `tools/parsers`.
 
 ## Repository layout
 
@@ -32,30 +54,11 @@ tools/      Reusable conversion and decoding utilities
 tests/      Regression tests and known-answer vectors
 ```
 
-## Quick start
-
-Python 3.10 or newer is required.
-
-```bash
-python tools/parsers/decode_frame_from_csv.py \
-  docs/can/racelogic/volt_public_signals.csv \
-  0xC9 \
-  "00 00 00 00 00 10 27 00"
-
-python tools/parsers/decode_log_from_csv.py \
-  docs/can/racelogic/volt_public_signals.csv \
-  data/raw/candump.log \
-  data/processed/decoded.csv
-
-python tools/parsers/csv_to_dbc.py \
-  docs/can/racelogic/volt_public_signals.csv \
-  /tmp/volt_public.dbc
-```
-
-Run the validation suite:
+Run validation:
 
 ```bash
 python -m unittest discover -s tests -v
+voltec validate-dbc
 ```
 
 ## Evidence policy
@@ -70,8 +73,8 @@ See [SECURITY.md](SECURITY.md) before connecting experimental software to a vehi
 
 ## Roadmap
 
-1. Repository foundation and continuous validation
-2. Unified Voltec CAN command-line toolkit
+1. Repository foundation and continuous validation — complete
+2. Unified Voltec CAN command-line toolkit — in progress
 3. Machine-readable Voltec Atlas
 4. Read-only J2534/VCX module inventory scanner
 5. Generated decoder definitions for Voltarian
