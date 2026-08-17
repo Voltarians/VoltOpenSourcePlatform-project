@@ -29,6 +29,7 @@ voltec decode-log      Decode known signals to CSV
 voltec normalize-log   Convert a supported capture to canonical CSV
 voltec inspect-log     Produce a capture inventory and change report
 voltec unknown-ids     List CAN IDs absent from the signal database
+voltec research-log    Rank unknown IDs for controlled follow-up
 voltec compare-logs    Compare baseline and test captures
 voltec generate-dbc    Generate a DBC from signal definitions
 voltec list-signals    Inspect known signals
@@ -46,10 +47,18 @@ voltec inspect-log capture.log --json --output inspection.json
 voltec normalize-log capture.log normalized.csv
 voltec compare-logs ignition-off.log ready-mode.log --output comparison.md
 voltec unknown-ids capture.log
+voltec research-log capture.log --output research.md
+voltec research-log capture.log --json --output research.json
 voltec decode-frame 0x4D1 "00 00 00 00 00 00 00 00" --json
 ```
 
 Normalized output contains only timestamp, channel, CAN ID, DLC, and payload. Unrelated source columns—including VIN or operator fields—are not carried into generated files.
+
+### Passive capture research
+
+`voltec research-log` hashes a sanitized capture, inventories known and unknown IDs, and ranks unknown IDs using activity, payload diversity, changing-byte coverage, and DLC consistency. Its score is a research priority—not an identification. No raw payloads, source paths, VINs, operator fields, vehicle requests, or transmit capability are added to the report.
+
+Promote a candidate into Atlas only after repeatable controlled captures establish model-year applicability and evidence-backed meaning.
 
 ## Voltec Atlas
 
@@ -91,8 +100,9 @@ Current public tools are offline and read-only. Vehicle transmit, security acces
 1. Repository foundation and continuous validation — complete
 2. Unified Voltec CAN toolkit — active
 3. Machine-readable Voltec Atlas — version 0.1 operational
-4. Read-only J2534/VCX module inventory scanner
-5. Generated decoder definitions for Voltarian
+4. Passive capture research and evidence ranking — operational
+5. Read-only J2534/VCX module inventory scanner
+6. Generated decoder definitions for Voltarian
 
 ## License
 
