@@ -210,6 +210,7 @@
       "signed": false,
       "endian": "motorola",
       "dlc": 4,
+      "source_conflicts": ["dlc-bit-range"],
       "vehicle_ids": [
         "chevrolet-volt-gen1"
       ],
