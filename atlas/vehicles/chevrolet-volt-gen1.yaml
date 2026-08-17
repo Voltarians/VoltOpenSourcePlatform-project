@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "id": "chevrolet-volt-gen1",
+  "make": "Chevrolet",
+  "model": "Volt",
+  "generation": "Gen 1",
+  "model_years": {
+    "start": 2011,
+    "end": 2015
+  }
+}

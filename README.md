@@ -33,6 +33,7 @@ voltec compare-logs    Compare baseline and test captures
 voltec generate-dbc    Generate a DBC from signal definitions
 voltec list-signals    Inspect known signals
 voltec validate-dbc    Verify reproducible DBC generation
+voltec atlas ...       Validate, query, and export Voltec Atlas
 ```
 
 Supported imports include SocketCAN/candump, plain `ID#DATA`, headerless byte CSV, general header-based CSV, SavvyCAN-style CSV, and common CANalyst text records.
@@ -49,6 +50,17 @@ voltec decode-frame 0x4D1 "00 00 00 00 00 00 00 00" --json
 ```
 
 Normalized output contains only timestamp, channel, CAN ID, DLC, and payload. Unrelated source columns—including VIN or operator fields—are not carried into generated files.
+
+## Voltec Atlas
+
+The `atlas/` directory now holds schema-validated records for two vehicles, two networks, five principal modules, and 14 published-reference signals. Unverified diagnostic addresses remain explicitly null.
+
+```bash
+voltec atlas validate
+voltec atlas lookup 0x4D1
+voltec atlas export-json atlas.json
+voltec atlas export-dbc atlas.dbc
+```
 
 ## Repository layout
 
@@ -78,7 +90,7 @@ Current public tools are offline and read-only. Vehicle transmit, security acces
 
 1. Repository foundation and continuous validation — complete
 2. Unified Voltec CAN toolkit — active
-3. Machine-readable Voltec Atlas
+3. Machine-readable Voltec Atlas — version 0.1 operational
 4. Read-only J2534/VCX module inventory scanner
 5. Generated decoder definitions for Voltarian
 

@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "id": "high-speed-gmlan",
+  "name": "High-Speed GMLAN",
+  "physical_layer": "ISO 11898-2 CAN",
+  "nominal_bitrate": 500000,
+  "addressing": "11-bit",
+  "evidence": {
+    "source": "Published Volt CAN reference",
+    "confidence": "published-reference"
+  }
+}

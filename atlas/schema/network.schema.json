@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "physical_layer",
+    "nominal_bitrate",
+    "addressing",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "physical_layer": {
+      "type": "string"
+    },
+    "nominal_bitrate": {
+      "type": "integer"
+    },
+    "addressing": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object"
+    }
+  }
+}

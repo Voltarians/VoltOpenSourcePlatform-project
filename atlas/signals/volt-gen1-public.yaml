@@ -1,0 +1,277 @@
+{
+  "schema_version": "0.1",
+  "id": "volt-gen1-racelogic-public",
+  "source": {
+    "title": "Racelogic Chevrolet Volt 2011-2015 CAN database",
+    "path": "docs/can/racelogic/racelogic_vehicle_can_database_volt_2011-2015.pdf",
+    "confidence": "published-reference"
+  },
+  "signals": [
+    {
+      "name": "Battery_Voltage",
+      "can_id": "0x12A",
+      "units": "V",
+      "start_bit": 16,
+      "bit_length": 8,
+      "offset": 3,
+      "scale": 0.1,
+      "minimum": 3,
+      "maximum": 28.5,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Tyre_Pressure_RR",
+      "can_id": "0x52A",
+      "units": "kPaG",
+      "start_bit": 16,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 4,
+      "minimum": 0,
+      "maximum": 1020,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Tyre_Pressure_FR",
+      "can_id": "0x52A",
+      "units": "kPaG",
+      "start_bit": 24,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 4,
+      "minimum": 0,
+      "maximum": 1020,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Tyre_Pressure_RL",
+      "can_id": "0x52A",
+      "units": "kPaG",
+      "start_bit": 32,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 4,
+      "minimum": 0,
+      "maximum": 1020,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Tyre_Pressure_FL",
+      "can_id": "0x52A",
+      "units": "kPaG",
+      "start_bit": 40,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 4,
+      "minimum": 0,
+      "maximum": 1020,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Steering_Angle",
+      "can_id": "0x1E5",
+      "units": "°",
+      "start_bit": 40,
+      "bit_length": 16,
+      "offset": 0,
+      "scale": 0.0625,
+      "minimum": -2048,
+      "maximum": 2047.9375,
+      "signed": true,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Oil_Temperature",
+      "can_id": "0x4D1",
+      "units": "°C",
+      "start_bit": 48,
+      "bit_length": 8,
+      "offset": -40,
+      "scale": 1,
+      "minimum": -40,
+      "maximum": 215,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Oil_Pressure",
+      "can_id": "0x4D1",
+      "units": "kPa",
+      "start_bit": 40,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 4,
+      "minimum": 0,
+      "maximum": 1020,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Air_Temperature",
+      "can_id": "0x4C1",
+      "units": "°C",
+      "start_bit": 32,
+      "bit_length": 8,
+      "offset": -40,
+      "scale": 1,
+      "minimum": -40,
+      "maximum": 215,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Accelerator_Pedal_Position",
+      "can_id": "0x3D1",
+      "units": "%",
+      "start_bit": 48,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 0.392157,
+      "minimum": 0,
+      "maximum": 100.000035,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Brake_Position",
+      "can_id": "0x0F1",
+      "units": "%",
+      "start_bit": 48,
+      "bit_length": 8,
+      "offset": 0,
+      "scale": 0.392157,
+      "minimum": 0,
+      "maximum": 100.000035,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 4,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Engine_Speed",
+      "can_id": "0x0C9",
+      "units": "rpm",
+      "start_bit": 40,
+      "bit_length": 16,
+      "offset": 0,
+      "scale": 0.25,
+      "minimum": 0,
+      "maximum": 10000,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 7,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Coolant_Temperature",
+      "can_id": "0x4C1",
+      "units": "°C",
+      "start_bit": 40,
+      "bit_length": 8,
+      "offset": -40,
+      "scale": 1,
+      "minimum": -40,
+      "maximum": 215,
+      "signed": false,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    },
+    {
+      "name": "Yaw_Rate",
+      "can_id": "0x1E9",
+      "units": "°/s",
+      "start_bit": 16,
+      "bit_length": 12,
+      "offset": 0,
+      "scale": 0.0625,
+      "minimum": -128,
+      "maximum": 127.9375,
+      "signed": true,
+      "endian": "motorola",
+      "dlc": 8,
+      "vehicle_ids": [
+        "chevrolet-volt-gen1"
+      ],
+      "network_id": "high-speed-gmlan",
+      "safety_class": "read-only"
+    }
+  ]
+}
