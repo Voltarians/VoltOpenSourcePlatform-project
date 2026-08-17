@@ -112,9 +112,13 @@ class WindowsJ2534Backend:
 
     @staticmethod
     def _install_response_filter(dll, channel_id: ctypes.c_ulong) -> None:
-        mask = _message(0, (0x7F8).to_bytes(4, "big"))
-        pattern = _message(0, (0x7E8).to_bytes(4, "big"))
-        # Filter messages consist only of the four-byte arbitration ID.
+        mask = PassThruMsg()
+        pattern = PassThruMsg()
+        mask.ProtocolID = pattern.ProtocolID = PROTOCOL_ISO15765
+        for index, value in enumerate((0x7F8).to_bytes(4, "big")):
+            mask.Data[index] = value
+        for index, value in enumerate((0x7E8).to_bytes(4, "big")):
+            pattern.Data[index] = value
         mask.DataSize = pattern.DataSize = 4
         mask.ExtraDataIndex = pattern.ExtraDataIndex = 4
         filter_id = ctypes.c_ulong()
