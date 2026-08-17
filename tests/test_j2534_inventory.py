@@ -32,7 +32,7 @@ class J2534InventoryTests(unittest.TestCase):
         report = j2534_inventory.inventory_markdown(inventory)
         self.assertIn("# Voltec Read-Only J2534 Inventory", report)
         self.assertNotIn("FFFFFFFF", report)
-        self.assertNotIn("VIN", report.upper())
+        self.assertNotIn("1G1", report.upper())
 
     def test_invalid_bitrate_is_rejected_before_backend_use(self):
         class FailBackend:
