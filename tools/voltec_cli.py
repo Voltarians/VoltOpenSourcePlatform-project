@@ -12,6 +12,7 @@ import tempfile
 from pathlib import Path
 from typing import Sequence
 
+from tools import log_analysis
 from tools.parsers import csv_to_dbc
 from tools.parsers import decode_log_from_csv as decoder
 
@@ -41,10 +42,11 @@ def _decoded_signals(signals_path: Path, can_id_text: str, data_text: str) -> li
     definitions = decoder.load_signals(str(signals_path)).get(can_id, [])
     decoded = []
     for signal in definitions:
-        if signal.big_endian:
-            raw = decoder.get_big_endian(data, signal.start_bit, signal.bit_length)
-        else:
-            raw = decoder.get_little_endian(data, signal.start_bit, signal.bit_length)
+        raw = (
+            decoder.get_big_endian(data, signal.start_bit, signal.bit_length)
+            if signal.big_endian
+            else decoder.get_little_endian(data, signal.start_bit, signal.bit_length)
+        )
         if signal.signed:
             raw = decoder.to_signed(raw, signal.bit_length)
         decoded.append(
@@ -71,6 +73,18 @@ def _run_legacy(main_function, arguments: list[str], quiet: bool = False) -> int
         sys.argv = previous
 
 
+def _known_ids(signals: Path) -> set[int]:
+    return set(decoder.load_signals(str(signals)))
+
+
+def _write_or_print(text: str, output: Path | None) -> None:
+    if output:
+        output.write_text(text, encoding="utf-8")
+        print(f"Report written: {output}")
+    else:
+        print(text, end="")
+
+
 def cmd_decode_frame(args: argparse.Namespace) -> int:
     rows = _decoded_signals(args.signals, args.can_id, args.data)
     if args.json:
@@ -94,10 +108,7 @@ def cmd_decode_log(args: argparse.Namespace) -> int:
 
 
 def cmd_generate_dbc(args: argparse.Namespace) -> int:
-    return _run_legacy(
-        csv_to_dbc.main,
-        [str(args.signals), str(args.output)],
-    )
+    return _run_legacy(csv_to_dbc.main, [str(args.signals), str(args.output)])
 
 
 def cmd_list_signals(args: argparse.Namespace) -> int:
@@ -150,17 +161,70 @@ def cmd_validate_dbc(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_normalize_log(args: argparse.Namespace) -> int:
+    capture_format, frames = log_analysis.read_capture(args.input)
+    log_analysis.write_normalized(frames, args.output)
+    print(f"Normalized {len(frames)} frames from {capture_format}: {args.output}")
+    return 0
+
+
+def cmd_inspect_log(args: argparse.Namespace) -> int:
+    capture_format, frames = log_analysis.read_capture(args.input)
+    summary = log_analysis.capture_summary(
+        frames, capture_format, _known_ids(args.signals)
+    )
+    if args.json:
+        _write_or_print(json.dumps(summary, indent=2) + "\n", args.output)
+    else:
+        _write_or_print(log_analysis.summary_markdown(summary), args.output)
+    return 0
+
+
+def cmd_unknown_ids(args: argparse.Namespace) -> int:
+    capture_format, frames = log_analysis.read_capture(args.input)
+    summary = log_analysis.capture_summary(
+        frames, capture_format, _known_ids(args.signals)
+    )
+    unknown = [row for row in summary["messages"] if not row["known"]]
+    if args.json:
+        print(json.dumps(unknown, indent=2))
+    else:
+        for row in unknown:
+            print(
+                f"{row['can_id']:>6}  frames={row['frames']:<8} "
+                f"dlc={','.join(map(str, row['dlc'])):<5} "
+                f"changed={row['changed_byte_mask']}"
+            )
+        print(f"Unknown IDs: {len(unknown)}")
+    return 0
+
+
+def cmd_compare_logs(args: argparse.Namespace) -> int:
+    known = _known_ids(args.signals)
+    base_format, base_frames = log_analysis.read_capture(args.baseline)
+    test_format, test_frames = log_analysis.read_capture(args.test)
+    comparison = log_analysis.compare_summaries(
+        log_analysis.capture_summary(base_frames, base_format, known),
+        log_analysis.capture_summary(test_frames, test_format, known),
+    )
+    if args.json:
+        _write_or_print(json.dumps(comparison, indent=2) + "\n", args.output)
+    else:
+        _write_or_print(log_analysis.comparison_markdown(comparison), args.output)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="voltec",
         description="Offline CAN research toolkit for Chevrolet Volt and Cadillac ELR.",
     )
-    parser.add_argument("--version", action="version", version="voltec 0.2.0")
+    parser.add_argument("--version", action="version", version="voltec 0.3.0")
     commands = parser.add_subparsers(dest="command", required=True)
 
     frame_parser = commands.add_parser("decode-frame", help="Decode one CAN frame.")
-    frame_parser.add_argument("can_id", help="CAN identifier, decimal or hexadecimal.")
-    frame_parser.add_argument("data", help="Up to eight hexadecimal data bytes.")
+    frame_parser.add_argument("can_id")
+    frame_parser.add_argument("data")
     frame_parser.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
     frame_parser.add_argument("--json", action="store_true")
     frame_parser.set_defaults(handler=cmd_decode_frame)
@@ -171,23 +235,47 @@ def build_parser() -> argparse.ArgumentParser:
     log_parser.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
     log_parser.set_defaults(handler=cmd_decode_log)
 
-    dbc_parser = commands.add_parser("generate-dbc", help="Generate a DBC from signal CSV.")
+    normalize = commands.add_parser("normalize-log", help="Normalize a CAN capture.")
+    normalize.add_argument("input", type=Path)
+    normalize.add_argument("output", type=Path)
+    normalize.set_defaults(handler=cmd_normalize_log)
+
+    inspect = commands.add_parser("inspect-log", help="Summarize a CAN capture.")
+    inspect.add_argument("input", type=Path)
+    inspect.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
+    inspect.add_argument("--json", action="store_true")
+    inspect.add_argument("--output", type=Path)
+    inspect.set_defaults(handler=cmd_inspect_log)
+
+    unknown = commands.add_parser("unknown-ids", help="List undefined CAN IDs.")
+    unknown.add_argument("input", type=Path)
+    unknown.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
+    unknown.add_argument("--json", action="store_true")
+    unknown.set_defaults(handler=cmd_unknown_ids)
+
+    compare = commands.add_parser("compare-logs", help="Compare two CAN captures.")
+    compare.add_argument("baseline", type=Path)
+    compare.add_argument("test", type=Path)
+    compare.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
+    compare.add_argument("--json", action="store_true")
+    compare.add_argument("--output", type=Path)
+    compare.set_defaults(handler=cmd_compare_logs)
+
+    dbc_parser = commands.add_parser("generate-dbc", help="Generate a DBC.")
     dbc_parser.add_argument("output", type=Path)
     dbc_parser.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
     dbc_parser.set_defaults(handler=cmd_generate_dbc)
 
-    list_parser = commands.add_parser("list-signals", help="List known signal definitions.")
+    list_parser = commands.add_parser("list-signals", help="List signal definitions.")
     list_parser.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
     list_parser.add_argument("--can-id")
     list_parser.add_argument("--json", action="store_true")
     list_parser.set_defaults(handler=cmd_list_signals)
 
-    validate_parser = commands.add_parser(
-        "validate-dbc", help="Verify that a DBC matches its signal CSV."
-    )
-    validate_parser.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
-    validate_parser.add_argument("--dbc", type=Path, default=DEFAULT_DBC)
-    validate_parser.set_defaults(handler=cmd_validate_dbc)
+    validate = commands.add_parser("validate-dbc", help="Validate generated DBC.")
+    validate.add_argument("--signals", type=Path, default=DEFAULT_SIGNALS)
+    validate.add_argument("--dbc", type=Path, default=DEFAULT_DBC)
+    validate.set_defaults(handler=cmd_validate_dbc)
 
     return parser
 

@@ -2,7 +2,7 @@
 
 Open technical foundation for first-generation Chevrolet Volt and Cadillac ELR research.
 
-The platform preserves GM's original vehicle systems while providing documented, testable tools for telemetry, CAN decoding, diagnostic research, and service engineering. It is intended for engineers and experienced builders—not as a consumer programming product.
+The platform preserves GM's original vehicle systems while providing documented, testable tools for telemetry, CAN decoding, diagnostic research, and service engineering.
 
 ## Project family
 
@@ -21,27 +21,34 @@ python -m pip install -e .
 voltec --help
 ```
 
-Available commands:
+Commands:
 
 ```text
-voltec decode-frame   Decode one CAN frame
-voltec decode-log     Decode a candump, ID#DATA, or CSV capture
-voltec generate-dbc   Generate a DBC from signal definitions
-voltec list-signals   Inspect known signals
-voltec validate-dbc   Verify reproducible DBC generation
+voltec decode-frame    Decode one CAN frame
+voltec decode-log      Decode known signals to CSV
+voltec normalize-log   Convert a supported capture to canonical CSV
+voltec inspect-log     Produce a capture inventory and change report
+voltec unknown-ids     List CAN IDs absent from the signal database
+voltec compare-logs    Compare baseline and test captures
+voltec generate-dbc    Generate a DBC from signal definitions
+voltec list-signals    Inspect known signals
+voltec validate-dbc    Verify reproducible DBC generation
 ```
+
+Supported imports include SocketCAN/candump, plain `ID#DATA`, headerless byte CSV, general header-based CSV, SavvyCAN-style CSV, and common CANalyst text records.
 
 Examples:
 
 ```bash
-voltec list-signals --can-id 0x52A
+voltec inspect-log capture.log --output inspection.md
+voltec inspect-log capture.log --json --output inspection.json
+voltec normalize-log capture.log normalized.csv
+voltec compare-logs ignition-off.log ready-mode.log --output comparison.md
+voltec unknown-ids capture.log
 voltec decode-frame 0x4D1 "00 00 00 00 00 00 00 00" --json
-voltec decode-log data/raw/candump.log data/processed/decoded.csv
-voltec generate-dbc /tmp/volt_public.dbc
-voltec validate-dbc
 ```
 
-The original standalone parser scripts remain available under `tools/parsers`.
+Normalized output contains only timestamp, channel, CAN ID, DLC, and payload. Unrelated source columns—including VIN or operator fields—are not carried into generated files.
 
 ## Repository layout
 
@@ -50,8 +57,8 @@ docs/       Technical documentation and cited CAN references
 data/       Sanitized example captures and generated results
 hardware/   Interface, wiring, and test-fixture documentation
 src/        Future platform services and integrations
-tools/      Reusable conversion and decoding utilities
-tests/      Regression tests and known-answer vectors
+tools/      Reusable conversion and analysis utilities
+tests/      Regression tests and sanitized synthetic fixtures
 ```
 
 Run validation:
@@ -61,20 +68,16 @@ python -m unittest discover -s tests -v
 voltec validate-dbc
 ```
 
-## Evidence policy
+## Evidence and safety
 
-Every contributed signal or diagnostic definition should identify its source, applicable model years, validation vehicle or fixture, date, and confidence level. Remove VINs, account data, precise locations, and other personal information from captures.
+Every contributed definition should identify its source, model-year applicability, validation fixture, date, and confidence. Remove VINs, accounts, precise locations, and personal information from captures.
 
-## Safety boundary
-
-The current public tools are read-only decoders and offline converters. Vehicle transmit, security-access, actuator-control, and programming work must remain explicitly separated, gated, documented, and tested on appropriate fixtures before vehicle use.
-
-See [SECURITY.md](SECURITY.md) before connecting experimental software to a vehicle.
+Current public tools are offline and read-only. Vehicle transmit, security access, actuator control, and programming work remain separated and require explicit safeguards. See [SECURITY.md](SECURITY.md).
 
 ## Roadmap
 
 1. Repository foundation and continuous validation — complete
-2. Unified Voltec CAN command-line toolkit — in progress
+2. Unified Voltec CAN toolkit — active
 3. Machine-readable Voltec Atlas
 4. Read-only J2534/VCX module inventory scanner
 5. Generated decoder definitions for Voltarian
